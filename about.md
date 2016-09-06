@@ -8,6 +8,10 @@ permalink: /about/
 
 ### More Information
 
+渴望交流和提高。
+
+文章如有错误或描述不当之处，请务必指出，非常感谢。
+
 这是一个长期的过程。
 
 ### Contact me
