@@ -6,6 +6,8 @@ permalink: /about/
 
 周伟，Java服务端开发，现工作于[乐视云](http://www.lecloud.com/zh-cn/)。
 
+GitHub: https://github.com/lfckop/
+
 ### More Information
 
 渴望交流和提高。
