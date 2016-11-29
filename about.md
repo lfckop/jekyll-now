@@ -8,6 +8,8 @@ permalink: /about/
 
 GitHub: <https://github.com/lfckop/>
 
+Blog: <https://lfckop.github.io/>
+
 ### More Information
 
 渴望交流和提高。
