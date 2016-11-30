@@ -11,7 +11,10 @@ title: 个人Shell工具集介绍
 
 # 用法
 1. 将*utils*下载至用户home目录：
-```$ cd $HOME && git clone https://github.com/lfckop/utils.git```
+
+    ```bash
+    $ cd $HOME && git clone https://github.com/lfckop/utils.git
+    ```
     
 2. 有两种使用方式可供选择：
   * 只影响当前shell会话：`$ source ${HOME}/utils/.source.sh`
