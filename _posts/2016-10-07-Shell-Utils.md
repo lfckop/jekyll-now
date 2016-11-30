@@ -10,7 +10,8 @@ title: 个人Shell工具集介绍
 这个项目会一直进行更新和维护。欢迎大家使用、提意见和merge request！
 
 # 用法
-1. 将*utils*下载至用户home目录：```$ cd $HOME && git clone https://github.com/lfckop/utils.git```
+1. 将*utils*下载至用户home目录：
+```$ cd $HOME && git clone https://github.com/lfckop/utils.git```
     
 2. 有两种使用方式可供选择：
   * 只影响当前shell会话：`$ source ${HOME}/utils/.source.sh`
