@@ -33,7 +33,7 @@ alias mcp="mvn clean package"
 alias mcpnt="mvn clean package -DskipTests -Dmaven.test.skip=true"
 alias sost="netstat -n | awk '/^tcp/ {s[\$NF]++} END{for(i in s) print i, s[i]}' OFS='\t'"
 ```
-这些`alias`的都定义在`.source.sh`文件中，一般比较直观，意图是提供简化的命令行操作，部分alias介绍如下。
+这些`alias`都定义在`.source.sh`文件中，一般比较直观，意图是提供简化的命令行操作，部分alias介绍如下。
 
 * `pg`: 查找某个进程：`$ pg java`，可根据进程PID或进程名进行查找。
 * `ng`: 检查端口使用情况：`$ ng 8080`，可根据端口号、进程PID或进程名进行查找。
@@ -93,13 +93,13 @@ Example: ff ConcurrentHashMap Test1.java Test2.java
 
 1. `first60s`：保存当前系统信息，如内存、CPU、网络、磁盘等主要部件的负载、IO、性能、容量等相关信息。脚本基本上是参考netflix的一篇博文["Linux Performance Analysis in 60,000 Milliseconds"](http://techblog.netflix.com/2015/11/linux-performance-analysis-in-60s.html)，作者[Brendan Gregg](http://www.brendangregg.com/)；网上也有其译文["Linux性能分析的前60000毫秒"](https://segmentfault.com/a/1190000004104493)。
 
-    ```bash
+    ```
     Usage: first60s
     ```
 
 2. `jdt`：**J**ava **D**ump **T**ool，保存当前Java应用的运行时信息，主要是用jstack, jmap, jinfo和jstat保存相关信息，再结合GC日志，应该可以对后续排查提供更多帮助。
 
-    ```bash
+    ```
     Usage: jdt [pid]
     ```
 
