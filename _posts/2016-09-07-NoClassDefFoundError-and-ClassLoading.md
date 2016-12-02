@@ -8,10 +8,11 @@ title: NoClassDefFoundError与类加载
 
 # `java.lang.NoClassDefFoundError`
 该异常在API文档中的描述为:
+
 > `public class NoClassDefFoundError extends LinkageError`
-
+> 
 > Thrown if the Java Virtual Machine or a ClassLoader instance tries to **load in the definition of a class (as part of a normal method call or as part of creating a new instance using the new expression)** and no definition of the class could be found.
-
+> 
 > The searched-for class definition existed when the currently executing class was compiled, but the definition can no longer be found.
 
 # 类加载过程中的几个阶段和分别对应的方法
