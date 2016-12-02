@@ -11,12 +11,12 @@ title: NoClassDefFoundError与类加载
 
 > `public class NoClassDefFoundError extends LinkageError`
 > 
-> Thrown if the Java Virtual Machine or a ClassLoader instance tries to **load in the definition of a class (as part of a normal method call or as part of creating a new instance using the new expression)** and no definition of the class could be found.
+> Thrown if the Java Virtual Machine or a ClassLoader instance tries to **load in the definition of a class (as part of a normal method call or as part of creating a new instance using the new expression) and no definition of the class could be found.**
 > 
 > The searched-for class definition existed when the currently executing class was compiled, but the definition can no longer be found.
 
 # 类加载的几个阶段和分别对应的方法
-类加载(Class Loading)过程中的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)，其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)，它们分别对应的主要方法简介如下。在遇到类加载相关问题时，可以用[BTrace](https://github.com/btraceio/btrace)的[`@OnMethod`](https://github.com/btraceio/btrace/wiki/BTrace-Annotations#onmethod)注解来跟踪方法执行。
+类加载(Class Loading)过程中的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)，其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification - Loading, Linking, and Initializing](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html)，它们分别对应的主要方法简介如下。在遇到类加载相关问题时，可以用[BTrace](https://github.com/btraceio/btrace)的[`@OnMethod`](https://github.com/btraceio/btrace/wiki/BTrace-Annotations#onmethod)注解来跟踪方法执行。
 
 1. **加载**
 
@@ -38,7 +38,7 @@ title: NoClassDefFoundError与类加载
 
     `<clinit>()`
     
-    类加载过程的最后一步，执行类构造器方法，它是编译器自动收集类中的所有类变量(static)的赋值动作和静态语句块(static {})中的语句合并产生的。
+    `"the class or interface initialization method"`，类加载过程的最后一步，执行**类构造器**方法，它是编译器自动收集类中的所有类变量(`static`)的赋值动作和静态语句块(`static {}`)中的语句合并产生的。
 
 # JVM记录类加载状态
 
@@ -71,7 +71,59 @@ title: NoClassDefFoundError与类加载
   bool is_in_error_state() const           { return _init_state == initialization_error; }
 ```
 
-`java.lang.NoClassDefFoundError: Could not initialize class package.ClassName`
-这时其实是已经执行完<clinit>了，应该找出第一次抛异常的地方！因为类第一次初始化失败后，后续使用此类时不会再次初始化，只会抛出以上信息，此时再用BTrace来跟踪其<clinit>也是徒劳的。用Btrace来启动项目是更好的选择，或者在项目刚刚启动时就跟踪。
+[hotspot-87ee5ee27509/src/share/vm/oops/instanceKlass.cpp](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/oops/instanceKlass.cpp):
+
+关注类加载的最后一步：初始化，它由6种**主动引用**来触发（[A class or interface C may be initialized only as a result of](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html#jvms-5.5)）。类初始化主要由[`InstanceKlass::initialize_impl`](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/oops/instanceKlass.cpp#l777)函数来完成，它基本按照[JVM Specification - Initialization](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html#jvms-5.5)中描述的`1 - 12`步来执行，摘录部分如下：
+
+``` c++
+void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
+  // Make sure klass is linked (verified) before initialization
+  // A class could already be verified, since it has been reflected upon.
+  this_oop->link_class(CHECK);
+
+    // Step 5
+    if (this_oop->is_in_error_state()) {
+      DTRACE_CLASSINIT_PROBE_WAIT(erroneous, InstanceKlass::cast(this_oop()), -1,wait);
+      ResourceMark rm(THREAD);
+      const char* desc = "Could not initialize class ";
+      const char* className = this_oop->external_name();
+      size_t msglen = strlen(desc) + strlen(className) + 1;
+      char* message = NEW_RESOURCE_ARRAY(char, msglen);
+      if (NULL == message) {
+        // Out of memory: can't create detailed error message
+        THROW_MSG(vmSymbols::java_lang_NoClassDefFoundError(), className);
+      } else {
+        jio_snprintf(message, msglen, "%s%s", desc, className);
+        THROW_MSG(vmSymbols::java_lang_NoClassDefFoundError(), message);
+      }
+    }
+      
+  // Step 8
+  {
+    assert(THREAD->is_Java_thread(), "non-JavaThread in initialize_impl");
+    JavaThread* jt = (JavaThread*)THREAD;
+    DTRACE_CLASSINIT_PROBE_WAIT(clinit, InstanceKlass::cast(this_oop()), -1,wait);
+    // Timer includes any side effects of class initialization (resolution,
+    // etc), but not recursive entry into call_class_initializer().
+    PerfClassTraceTime timer(ClassLoader::perf_class_init_time(),
+                             ClassLoader::perf_class_init_selftime(),
+                             ClassLoader::perf_classes_inited(),
+                             jt->get_thread_stat()->perf_recursion_counts_addr(),
+                             jt->get_thread_stat()->perf_timers_addr(),
+                             PerfClassTraceTime::CLASS_CLINIT);
+    this_oop->call_class_initializer(THREAD);
+  }      
+```
+
+可见，类执行初始化之前会先检查确保类已经执行过链接过程。
+
+同样，代码`"step 5"`表明，若抛出异常`java.lang.NoClassDefFoundError: Could not initialize class xxx.package.ClassName`(尤其注意**"Could not initialize class"**)，则一定表明是执行**类构造器`<clinit>()`**时出错。
+
+当你见到这个异常描述信息时，说明其实是已经执行完`<clinit>()`了，这时应该找出第一次抛异常的地方！因为类第一次初始化失败后，后续使用此类时不会再次初始化，只会抛出以上信息，此时再用BTrace来跟踪其`<clinit>()`也是徒劳的。用Btrace来启动项目是更好的选择，或者在项目刚刚启动时就进行跟踪。
+
+> 5\. If the Class object for C is in an erroneous state, then initialization is not possible. Release LC and throw a **NoClassDefFoundError**.
+
+代码`"step 8"`执行类构造器`<clinit>()``"the class or interface initialization method"`，即`call_class_initializer`
+
 
 # 案例
