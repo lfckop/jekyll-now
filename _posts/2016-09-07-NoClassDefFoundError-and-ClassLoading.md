@@ -59,6 +59,16 @@ title: NoClassDefFoundError与类加载
     fully_initialized,                  // initialized (successfull final state)
     initialization_error                // error happened during initialization
   };
+  
+  u1       _init_state;                 // state of class
+  
+  // initialization state
+  bool is_loaded() const                   { return _init_state >= loaded; }
+  bool is_linked() const                   { return _init_state >= linked; }
+  bool is_initialized() const              { return _init_state == fully_initialized; }
+  bool is_not_initialized() const          { return _init_state <  being_initialized; }
+  bool is_being_initialized() const        { return _init_state == being_initialized; }
+  bool is_in_error_state() const           { return _init_state == initialization_error; }
 ```
 
 `java.lang.NoClassDefFoundError: Could not initialize class package.ClassName`
