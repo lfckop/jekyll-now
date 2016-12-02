@@ -16,9 +16,9 @@ title: NoClassDefFoundError与类加载
 > The searched-for class definition existed when the currently executing class was compiled, but the definition can no longer be found.
 
 # 类加载的几个阶段和分别对应的方法
-类加载(Class Loading)过程中的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)。其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)，它们分别对应的主要方法简介如下。在遇到类加载相关问题时，可以用[BTrace](https://github.com/btraceio/btrace)的[`@OnMethod`](https://github.com/btraceio/btrace/wiki/BTrace-Annotations#onmethod)注解来跟踪方法执行。
+类加载(Class Loading)过程中的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)，其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)，它们分别对应的主要方法简介如下。在遇到类加载相关问题时，可以用[BTrace](https://github.com/btraceio/btrace)的[`@OnMethod`](https://github.com/btraceio/btrace/wiki/BTrace-Annotations#onmethod)注解来跟踪方法执行。
 
-1. 加载
+1. **加载**
 
     `protected final Class<?> defineClass(String name, byte[] b, int off, int len, ProtectionDomain protectionDomain)`
     
@@ -26,7 +26,7 @@ title: NoClassDefFoundError与类加载
 
     位于`java.lang.ClassLoader`中。
 
-2. 链接
+2. **链接**
 
     `protected final void resolveClass(Class<?> c)`
     
@@ -34,10 +34,50 @@ title: NoClassDefFoundError与类加载
     
     位于`java.lang.ClassLoader`中。
 
-3. 初始化
+3. **初始化**
 
     `<clinit>()`
     
     类加载过程的最后一步，执行类构造器方法，它是编译器自动收集类中的所有类变量(static)的赋值动作和静态语句块(static {})中的语句合并产生的。
 
 # JVM记录类加载状态
+
+不甚懂*C++*，粗略地翻了下源码。
+
+从[OpenJDK/jdk8/jdk8/hotspot](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509)的源码可以看出虚拟机内部有个类`InstanceKlass`，它有一个`_init_state`整形变量记录Java类的类加载状态，摘录如下：
+
+[hotspot-87ee5ee27509/src/share/vm/oops/instanceKlass.hpp](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/oops/instanceKlass.hpp):
+
+> An InstanceKlass is the VM level representation of a Java class. It contains all information needed for a class at execution runtime.
+
+
+```C++
+  // See "The Java Virtual Machine Specification" section 2.16.2-5 for a detailed description
+  // of the class loading & initialization procedure, and the use of the states.
+  enum ClassState {
+    allocated,                          // allocated (but not yet linked)
+    loaded,                             // loaded and inserted in class hierarchy (but not linked yet)
+    linked,                             // successfully linked/verified (but not initialized yet)
+    being_initialized,                  // currently running class initializer
+    fully_initialized,                  // initialized (successfull final state)
+    initialization_error                // error happened during initialization
+  };
+  
+  u1              _init_state;          // state of class
+
+  // initialization state
+  bool is_loaded() const                  { return _init_state >= loaded; }
+  bool is_linked() const                  { return _init_state >= linked; }
+  bool is_initialized() const              { return _init_state == fully_initialized; }
+  bool is_not_initialized() const          { return _init_state <  being_initialized; }
+  bool is_being_initialized() const        { return _init_state == being_initialized; }
+  bool is_in_error_state() const          { return _init_state == initialization_error; }
+
+```
+
+
+
+`java.lang.NoClassDefFoundError: Could not initialize class package.ClassName`
+这时其实是已经执行完<clinit>了，应该找出第一次抛异常的地方！因为类第一次初始化失败后，后续使用此类时不会再次初始化，只会抛出以上信息，此时再用BTrace来跟踪其<clinit>也是徒劳的。用Btrace来启动项目是更好的选择，或者在项目刚刚启动时就跟踪。
+
+# 案例
