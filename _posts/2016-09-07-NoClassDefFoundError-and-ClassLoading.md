@@ -44,14 +44,13 @@ title: NoClassDefFoundError与类加载
 
 不甚懂*C++*，粗略地翻了下源码。
 
-从[OpenJDK/jdk8/jdk8/hotspot](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509)的源码可以看出虚拟机内部有个类`InstanceKlass`，它有一个`_init_state`整形变量记录Java类的类加载状态，摘录如下：
+从[OpenJDK/jdk8/jdk8/hotspot](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509)的源码可以看出虚拟机内部有个类`InstanceKlass`，它有一个`_init_state`变量记录Java类的类加载状态，摘录如下：
 
 [hotspot-87ee5ee27509/src/share/vm/oops/instanceKlass.hpp](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/oops/instanceKlass.hpp):
 
 > An InstanceKlass is the VM level representation of a Java class. It contains all information needed for a class at execution runtime.
 
-
-```C++
+``` C++
   // See "The Java Virtual Machine Specification" section 2.16.2-5 for a detailed description
   // of the class loading & initialization procedure, and the use of the states.
   enum ClassState {
@@ -68,14 +67,11 @@ title: NoClassDefFoundError与类加载
   // initialization state
   bool is_loaded() const                  { return _init_state >= loaded; }
   bool is_linked() const                  { return _init_state >= linked; }
-  bool is_initialized() const              { return _init_state == fully_initialized; }
-  bool is_not_initialized() const          { return _init_state <  being_initialized; }
-  bool is_being_initialized() const        { return _init_state == being_initialized; }
+  bool is_initialized() const             { return _init_state == fully_initialized; }
+  bool is_not_initialized() const         { return _init_state <  being_initialized; }
+  bool is_being_initialized() const       { return _init_state == being_initialized; }
   bool is_in_error_state() const          { return _init_state == initialization_error; }
-
 ```
-
-
 
 `java.lang.NoClassDefFoundError: Could not initialize class package.ClassName`
 这时其实是已经执行完<clinit>了，应该找出第一次抛异常的地方！因为类第一次初始化失败后，后续使用此类时不会再次初始化，只会抛出以上信息，此时再用BTrace来跟踪其<clinit>也是徒劳的。用Btrace来启动项目是更好的选择，或者在项目刚刚启动时就跟踪。
