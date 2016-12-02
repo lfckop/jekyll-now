@@ -50,6 +50,8 @@ title: NoClassDefFoundError与类加载
 
 > An InstanceKlass is the VM level representation of a Java class. It contains all information needed for a class at execution runtime.
 
+test
+
 ``` C
   enum ClassState {
     allocated,                          // allocated (but not yet linked)
