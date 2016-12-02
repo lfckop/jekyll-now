@@ -15,23 +15,29 @@ title: NoClassDefFoundError与类加载
 > 
 > The searched-for class definition existed when the currently executing class was compiled, but the definition can no longer be found.
 
-# 类加载过程中的几个阶段和分别对应的方法
-类加载(Class Loading)的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)。其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf).
+# 类加载的几个阶段和分别对应的方法
+类加载(Class Loading)过程中的几个阶段包括：加载(Loading)、链接(Linking)、初始化(Initialization)。其中链接阶段又可细分为验证(Verification)、准备(Preparation)、解析(Resolution)三个过程。各个阶段的具体描述请参考周志明或[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)，它们分别对应的主要方法简介如下。在遇到类加载相关问题时，可以用[BTrace](https://github.com/btraceio/btrace)的[`@OnMethod`](https://github.com/btraceio/btrace/wiki/BTrace-Annotations#onmethod)注解来跟踪方法执行。
 
 1. 加载
 
-    protected final Class<?> defineClass(String name, byte[] b, int off, int len)
+    `protected final Class<?> defineClass(String name, byte[] b, int off, int len, ProtectionDomain protectionDomain)`
     
-    > It converts an array of bytes into an instance of class Class.
+    > It converts an array of bytes into an instance of class `Class`.
 
-    位于java.lang.ClassLoader中。
+    位于`java.lang.ClassLoader`中。
 
 2. 链接
-resolveClass(Class<?>)
-Links the specified class. This (misleadingly named) method may be used by a class loader to link a class.
-位于java.lang.ClassLoader中。
+
+    `protected final void resolveClass(Class<?> c)`
+    
+    > Links the specified class. This (misleadingly named) method may be used by a class loader to link a class.
+    
+    位于`java.lang.ClassLoader`中。
 
 3. 初始化
-<clinit>(): 类加载过程的最后一步，执行类构造器方法，它是编译器自动收集类中的所有类变量(static)的赋值动作和静态语句块(static {})中的语句合并产生的。
+
+    `<clinit>()`
+    
+    类加载过程的最后一步，执行类构造器方法，它是编译器自动收集类中的所有类变量(static)的赋值动作和静态语句块(static {})中的语句合并产生的。
 
 # JVM记录类加载状态
