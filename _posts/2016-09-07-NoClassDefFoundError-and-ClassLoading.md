@@ -52,7 +52,7 @@ title: NoClassDefFoundError与类加载
 
 test
 
-``` C
+```bash
   enum ClassState {
     allocated,                          // allocated (but not yet linked)
     loaded,                             // loaded and inserted in class hierarchy (but not linked yet)
