@@ -117,13 +117,13 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
 
 可见，类执行初始化之前会先检查确保类已经执行过链接过程。
 
-同样，代码`"step 5"`表明，若抛出异常`"java.lang.NoClassDefFoundError: Could not initialize class xxx.package.ClassName"`(尤其注意**"Could not initialize class"**)，则一定表明是执行**类构造器`<clinit>()`**时出错。
+同样，代码`"step 5"`表明，若抛出异常`"java.lang.NoClassDefFoundError: Could not initialize class xxx.package.ClassName"`(尤其注意**"Could not initialize class"**)，则表明一定是执行**类构造器`<clinit>()`**时出错。
 
 当你见到这个异常描述信息时，说明其实是已经执行完`<clinit>()`了，这时应该找出第一次抛异常的地方！因为类第一次初始化失败后，后续使用此类时不会再次初始化，只会抛出以上信息，此时再用BTrace来跟踪其`<clinit>()`也是徒劳的。用Btrace来启动项目是更好的选择，或者在项目刚刚启动时就进行跟踪。
 
 > 5\. If the Class object for C is in an erroneous state, then initialization is not possible. Release LC and throw a **NoClassDefFoundError**.
 
-代码`"step 8"`执行类构造器`<clinit>()`，`"the class or interface initialization method"`，即调用`call_class_initializer`函数。
+代码`"step 8"`执行类构造器`<clinit>()`，即调用`call_class_initializer`函数。
 
 
 # 案例
