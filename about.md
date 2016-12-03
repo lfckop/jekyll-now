@@ -23,4 +23,4 @@ permalink: /about/
 [weizhou@mail.ustc.edu.cn](mailto:weizhou@mail.ustc.edu.cn)
 
 
-**注**：感觉用的[jekyll-now](https://github.com/barryclark/jekyll-now)博客模版对`markdown`显示的不是很完美，更好的页面展示可直接到GitHub的[posts](https://github.com/lfckop/lfckop.github.io/tree/master/_posts)目录中点击阅读相应的文章，待需要评论留言交流时，再回到对应的博客文章下面进行操作。
+**注**：感觉用的[jekyll-now](https://github.com/barryclark/jekyll-now)博客模版对`markdown`显示的不是很完美，更好的页面展示可直接到GitHub的[posts目录](https://github.com/lfckop/lfckop.github.io/tree/master/_posts)中点击阅读相应的文章，待需要评论留言交流时，再回到对应的博客文章下面进行操作。
