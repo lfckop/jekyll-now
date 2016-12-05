@@ -48,7 +48,7 @@ title: NoClassDefFoundError与类加载
 
 [hotspot-87ee5ee27509/src/share/vm/oops/instanceKlass.hpp](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/oops/instanceKlass.hpp):
 
-> An InstanceKlass is the VM level representation of a Java class. It contains all information needed for a class at execution runtime.
+> An **InstanceKlass** is the VM level representation of a Java class. It contains all information needed for a class at execution runtime.
 
 ```c++
   enum ClassState {
@@ -123,7 +123,7 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
 
 > 5\. If the Class object for C is in an erroneous state, then initialization is not possible. Release LC and throw a **NoClassDefFoundError**.
 
-代码`"step 8"`执行类构造器`<clinit>()`，即调用`call_class_initializer`函数。
+代码`"step 8"`执行类构造器`<clinit>()`，JVM表现为调用`this_oop->call_class_initializer(THREAD)`函数。
 
 
 # 案例
