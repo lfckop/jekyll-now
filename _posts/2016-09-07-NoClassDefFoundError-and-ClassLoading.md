@@ -148,7 +148,7 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
     
 2. 某工程的某个类由于执行类构造器`<clinit>()`失败而导致类加载失败。其原始异常大致如下：
 
-    ```java
+    ``` java
     严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.ExceptionInInitializerError] with root cause
 java.util.MissingResourceException: Can't find bundle for base name messages, locale zh_CN
         at java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:1564)
@@ -161,7 +161,7 @@ java.util.MissingResourceException: Can't find bundle for base name messages, lo
     
     类加载失败后，后续对该类的调用都抛出`NoClassDefFoundError`异常：
     
-    ```java
+    ``` java
     严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit] with root cause
 java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit
         at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
