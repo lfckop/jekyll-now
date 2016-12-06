@@ -129,41 +129,46 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
 
 
 # 案例
-1. 有一个spring-boot的项目，包含service、api、web三个子工程，分别被打包成可运行jar并以`java -jar`的方式来启动，它们在测试环境中部署在一台机器上。当web工程频繁更新时，会重新打包整个工程并重新启动web，这样service、api的目标可运行jar包会在运行中被改变。然后，service、api工程会频繁抛出这样的异常：`java.lang.NoClassDefFoundError: xxx/package/ClassName1`，在日志中其原始异常基本是这样的：
 
-    ```java
-    (java.util.zip.ZipException: invalid code lengths set)
-    (java.util.zip.ZipException: invalid distance too far back)
-    java.util.zip.ZipException: invalid block type
-    Wrapped by: java.lang.ClassNotFoundException: xxx.package.ClassName1
-    Wrapped by: java.lang.NoClassDefFoundError: xxx/package/ClassName1
-    Wrapped by: org.springframework.web.util.NestedServletException: Handler processing failed; nested exception is java.lang.NoClassDefFoundError: xxx/package/ClassName1
-    ...
-    ```
+## 案例1
 
-    其原始异常`java.util.zip.ZipException`的错误描述有好几种，如示列在异常栈最上面的`()`中。
+有一个spring-boot的项目，包含service、api、web三个子工程，分别被打包成可运行jar并以`java -jar`的方式来启动，它们在测试环境中部署在一台机器上。当web工程频繁更新时，会重新打包整个工程并重新启动web，这样service、api的目标可运行jar包会在运行中被改变。然后，service、api工程会频繁抛出这样的异常：`java.lang.NoClassDefFoundError: xxx/package/ClassName1`，在日志中其原始异常基本是这样的：
 
-    为什么重新打包会导致`ZipException`并导致`NoClassDefFoundError`类加载错误呢？这与spring-boot的类加载策略有关。对boot这种可运行jar(jar in jar，又叫nested jar，或fat jar)，spring-boot会首先计算各个类文件在jar中的位置索引，当需要加载某个类时，就依照位置索引去读二进流解压进行类加载；然而当目标jar被重新打包后，之前计算出的位置索引就不准确了，导致后续的类加载报`java.util.zip.ZipException`异常，并导致类加载失败。参考spring开发者[philwebb在该Issue下的回答](https://github.com/spring-projects/spring-boot/issues/1106)。
+```
+(java.util.zip.ZipException: invalid code lengths set)
+(java.util.zip.ZipException: invalid distance too far back)
+java.util.zip.ZipException: invalid block type
+Wrapped by: java.lang.ClassNotFoundException: xxx.package.ClassName1
+Wrapped by: java.lang.NoClassDefFoundError: xxx/package/ClassName1
+Wrapped by: org.springframework.web.util.NestedServletException: Handler processing failed; nested exception is java.lang.NoClassDefFoundError: xxx/package/ClassName1
+...
+```
+
+其原始异常`java.util.zip.ZipException`的错误描述有好几种，如示列在异常栈最上面的`()`中。
+
+为什么重新打包会导致`ZipException`并导致`NoClassDefFoundError`类加载错误呢？这与spring-boot的类加载策略有关。对boot这种可运行jar(jar in jar，又叫nested jar，或fat jar)，spring-boot会首先计算各个类文件在jar中的位置索引，当需要加载某个类时，就依照位置索引去读二进流解压进行类加载；然而当目标jar被重新打包后，之前计算出的位置索引就不准确了，导致后续的类加载报`java.util.zip.ZipException`异常，并导致类加载失败。参考spring开发者[philwebb在该Issue下的回答](https://github.com/spring-projects/spring-boot/issues/1106)。
 
     
-2. 某工程的某个类由于执行类构造器`<clinit>()`失败而导致类加载失败。其原始异常大致如下：
+## 案例2
 
-    ``` java
-    严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.ExceptionInInitializerError] with root cause
+某工程的某个类由于执行类构造器`<clinit>()`失败而导致类加载失败。其原始异常大致如下：
+
+```
+严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.ExceptionInInitializerError] with root cause
 java.util.MissingResourceException: Can't find bundle for base name messages, locale zh_CN
-        at java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:1564)
-        at java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1387)
-        at java.util.ResourceBundle.getBundle(ResourceBundle.java:845)
-        at com.letvcloud.saas.platform.util.ResourceUtils.getValue(ResourceUtils.java:14)
-        at com.letvcloud.saas.platform.enums.DaysUnit.<clinit>(DaysUnit.java:14)
-        ...
-    ```
+at java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:1564)
+at java.util.ResourceBundle.getBundleImpl(ResourceBundle.java:1387)
+at java.util.ResourceBundle.getBundle(ResourceBundle.java:845)
+at com.letvcloud.saas.platform.util.ResourceUtils.getValue(ResourceUtils.java:14)
+at com.letvcloud.saas.platform.enums.DaysUnit.<clinit>(DaysUnit.java:14)
+...
+```
     
-    类加载失败后，后续对该类的调用都抛出`NoClassDefFoundError`异常：
+类加载失败后，后续对该类的调用都抛出`NoClassDefFoundError`异常：
     
-    ``` java
-    严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit] with root cause
+```
+严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit] with root cause
 java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit
-        at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
-        ...
-    ```
+at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
+...
+```
