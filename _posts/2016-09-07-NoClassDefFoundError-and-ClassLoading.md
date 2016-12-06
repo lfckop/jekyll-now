@@ -165,4 +165,5 @@ java.util.MissingResourceException: Can't find bundle for base name messages, lo
     严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit] with root cause
 java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit
         at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
+        ...
     ```
