@@ -131,7 +131,7 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
 # 案例
 1. 有一个spring-boot的项目，包含service、api、web三个子工程，分别被打包成可运行jar并以`java -jar`的方式来启动，它们在测试环境中部署在一台机器上。当web工程频繁更新时，会重新打包整个工程并重新启动web，这样service、api的目标可运行jar包会在运行中被改变。然后，service、api工程会频繁抛出这样的异常：`java.lang.NoClassDefFoundError: xxx/package/ClassName1`，在日志中其原始异常基本是这样的：
 
-    ```
+    ```java
     (java.util.zip.ZipException: invalid code lengths set)
     (java.util.zip.ZipException: invalid distance too far back)
     java.util.zip.ZipException: invalid block type
@@ -148,7 +148,7 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
     
 2. 某工程的某个类由于执行类构造器`<clinit>()`失败而导致类加载失败。其原始异常大致如下：
 
-    ```
+    ```java
     严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.ExceptionInInitializerError] with root cause
 java.util.MissingResourceException: Can't find bundle for base name messages, locale zh_CN
         at java.util.ResourceBundle.throwMissingResourceException(ResourceBundle.java:1564)
@@ -161,7 +161,7 @@ java.util.MissingResourceException: Can't find bundle for base name messages, lo
     
     类加载失败后，后续对该类的调用都抛出`NoClassDefFoundError`异常：
     
-    ```
+    ```java
     严重: Servlet.service() for servlet [appServlet] in context with path [/saas-ms] threw exception [Handler processing failed; nested exception is java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit] with root cause
 java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.platform.enums.DaysUnit
         at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
