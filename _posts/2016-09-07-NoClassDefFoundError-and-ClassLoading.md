@@ -172,3 +172,10 @@ java.lang.NoClassDefFoundError: Could not initialize class com.letvcloud.saas.pl
 at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeController.java:91)
 ...
 ```
+
+# 后记
+本文源自在项目中排查类加载相关问题的总结，排查过程中离不开SaaS组里各位同事的帮助，在此一并感谢。
+
+文章如有错误或描述不当之处，请务必指出，非常感谢。
+
+**转载**请务必注明文章出处，否则，*Just Leave Me Alone!*
