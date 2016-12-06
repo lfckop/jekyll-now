@@ -123,7 +123,9 @@ void InstanceKlass::initialize_impl(instanceKlassHandle this_oop, TRAPS) {
 
 > 5\. If the Class object for C is in an erroneous state, then initialization is not possible. Release LC and throw a **NoClassDefFoundError**.
 
-代码`"step 8"`执行类构造器`<clinit>()`，JVM表现为调用`this_oop->call_class_initializer(THREAD)`函数。
+代码`"step 8"`执行类构造器`<clinit>()`，JVM表现为调用`this_oop->call_class_initializer(THREAD)`函数。如果类构造器执行成功，则置类加载状态为成功，即：`this_oop->set_initialization_state_and_notify(fully_initialized, CHECK);`。
+
+如果类构造器执行失败（记抛出的异常为**`E`**），则置类加载状态为初始化错误，即：` this_oop->set_initialization_state_and_notify(initialization_error, THREAD);`；若**`E`**不是`Error`类或其子类，则用**`E`**构造一个`ExceptionInInitializerError`，并抛出；这种情形下，当以后再有对该类的主动引用触发类初始化时，则直接走到`"step 5"`抛出异常`"java.lang.NoClassDefFoundError: Could not initialize class xxx.package.ClassName"`。
 
 
 # 案例
