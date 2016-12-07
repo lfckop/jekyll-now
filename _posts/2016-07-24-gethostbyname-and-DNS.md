@@ -103,6 +103,12 @@ gethostbyname("baidu.com")                       = 0x7f21dfaf16e0
 
 > The **gethostbyname()** and **gethostbyaddr()** functions are obsolete.  Applications should use **getaddrinfo(3)** and **getnameinfo(3)** instead.
 
-# 
+# 其它
+
+## `nscd`
+
+## `dnsmasq`
+
+## `dig`
 
 
