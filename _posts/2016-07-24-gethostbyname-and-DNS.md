@@ -159,7 +159,7 @@ nameserver 8.8.4.4
 open("/etc/resolv.conf", O_RDONLY)      = 10
 ```
 
-## 跟踪与网络抓包
+## 程序跟踪与网络抓包
 在日常开发和学习中，遇到问题或对某个东西感到疑惑的时候，对程序进行调用跟踪和对网络进行抓包，是非常有效的分析方式。
 
 用`strace`来跟踪系统函数调用，细节请参考`man strace`。
@@ -168,7 +168,7 @@ open("/etc/resolv.conf", O_RDONLY)      = 10
 
 用`wireshark`(GUI)、`tshark`、`tcpdump`来进行网络抓包，细节参考各自的`man`说明页。
 
-更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。还可以参考大神章亦春写的文章[动态追踪技术漫谈](https://openresty.org/posts/dynamic-tracing/)。
+更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。还可以阅读大神章亦春(春哥)写的文章[动态追踪技术漫谈](https://openresty.org/posts/dynamic-tracing/)。
 
 
 
