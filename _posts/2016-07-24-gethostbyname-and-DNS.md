@@ -9,7 +9,7 @@ title: gethostbyname与DNS
 
 1. 连接socket文件`/var/run/nscd/socket`，通过`nscd`进程缓存的内容来获取。`nscd`会实时监测`/etc/hosts`和`/etc/resolv.conf`文件内容的变化并缓存，具体请参考`/etc/nscd.conf`中的说明。
  
-2. 如果没有`nscd`服务，则通过`/etc/nsswitch.conf`中的配置项`"hosts: files dns"`来决定获取顺序，先读`/etc/hosts`，否则就读`/etc/resolv.conf`向`DNS`服务器发出请求。
+2. 如果没有`nscd`服务，则通过`/etc/nsswitch.conf`中的**`hosts`**配置项来决定域名查询获取顺序。通常该配置项为`"hosts: files dns"`，则表示先读`/etc/hosts`，否则就读`/etc/resolv.conf`向`DNS`服务器发出域名解析请求。
 
 注：关于DNS与`dig`命令的介绍请阅读[阮一峰](http://www.ruanyifeng.com/blog/)老师的文章[DNS原理入门](http://www.ruanyifeng.com/blog/2016/06/dns.html)。
 
@@ -104,8 +104,52 @@ gethostbyname("baidu.com")                       = 0x7f21dfaf16e0
 # 其它
 
 ## `nscd`
+笔者所在公司的服务器上并没有配置`nscd`，但笔者的阿里云个人服务器上却默认配置了`nscd`。从`man nscd`摘录如下：
+
+> /usr/sbin/nscd - **N**ame **S**ervice **C**ache **D**aemon
+> 
+> Nscd  is a daemon that provides a cache for the most common name service requests.  The default configuration file, `/etc/nscd.conf`, determines the behavior of the cache daemon.
+> 
+> The  daemon  will  try to watch for changes in configuration files appropriate for each database (e.g. `/etc/passwd` for the passwd database or `/etc/hosts` and `/etc/resolv.conf` for the **hosts** database), and flush the cache when these are changed.
 
 ## `dnsmasq`
+Linux服务器上一般都会配置`dnsmasq`服务，用于缓存DNS请求结果，节省应用程序的域名解析时间。笔者的笔记本`Ubuntu 16.04 LTS`也默认配置了`dnsmasq`，同样笔者的`macOS Sierra`上也默认有一个叫`mDNSResponder`的服务。`dnsmasq`简介如下：
+
+> dnsmasq - A lightweight DHCP and caching DNS server.
+> 
+> It is intended to provide coupled DNS and DHCP service to a LAN. Dnsmasq accepts DNS queries and either answers them from a small, local, cache or forwards them to a real, recursive, DNS server.
+
+`dnsmasq`通常会绑定本地`127.0.0.1:53`，假设配置的DNS服务器是Google Public DNS，则`dnsmasq`的配置`/etc/dnsmasq.conf`一般如下：
+
+``` bash
+listen-address=127.0.0.1
+bind-interfaces
+no-hosts
+no-resolv
+#all-servers
+cache-size=10000
+no-negcache
+max-cache-ttl=600
+filter-aaaa
+server=8.8.8.8
+server=8.8.4.4
+```
+
+这样，`/etc/resolv.conf`的配置如下。注意第一项`nameserver`是本地IP`127.0.0.1`，也就利用上了`dnsmasq`的DNS缓存功能。
+
+``` bash
+nameserver 127.0.0.1
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+```
+
+另一个比较常见的DNS服务器是`bind`，简介如下：
+
+
+> BIND (Berkeley Internet Name Domain) is an implementation of the DNS (Domain Name System) protocols. BIND includes a DNS server (named), which resolves host names to IP addresses; a resolver library (routines for applications to use when interfacing with DNS); and tools for verifying that the DNS server is operating properly.
+>
+> named - /usr/sbin/named
+
 
 ## `dig`
 用`strace`追踪可知，`dig`命令是通过读配置文件`/etc/resolv.conf`，然后向其中列出的DNS服务器发出DNS请求。
@@ -116,7 +160,7 @@ open("/etc/resolv.conf", O_RDONLY)      = 10
 ```
 
 ## 跟踪与网络抓包
-在日常开发和学习中，遇到问题或对某个东西感到疑惑的时候，对程序进行跟踪和对网络进行抓包，是非常有效的分析方式。
+在日常开发和学习中，遇到问题或对某个东西感到疑惑的时候，对程序进行调用跟踪和对网络进行抓包，是非常有效的分析方式。
 
 用`strace`来跟踪系统函数调用，细节请参考`man strace`。
 
@@ -124,7 +168,7 @@ open("/etc/resolv.conf", O_RDONLY)      = 10
 
 用`wireshark`(GUI)、`tshark`、`tcpdump`来进行网络抓包，细节参考各自的`man`说明页。
 
-其它更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。
+更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。还可以参考大神章亦春写的文章[动态追踪技术漫谈](https://openresty.org/posts/dynamic-tracing/)。
 
 
 
