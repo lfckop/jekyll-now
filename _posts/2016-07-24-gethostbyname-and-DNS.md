@@ -90,14 +90,12 @@ exit_group(0)                           = ?
 
 
 
-要想查看某个程序是否调用`gethostbyname`，只需用`ltrace`命令跟踪一下查看其库调用即可：
+要想查看某个程序是否调用`gethostbyname`，只需用`ltrace`命令跟踪一下查看其库函数调用即可：
 
 ```bash
 # ltrace ping -c 1 baidu.com 2>&1 | grep gethostbyname
 gethostbyname("baidu.com")                       = 0x7f21dfaf16e0
 ```
-
-介绍nscd，dns cache server
 
 注：在`man gethostbyname`中有一句：
 
@@ -110,5 +108,23 @@ gethostbyname("baidu.com")                       = 0x7f21dfaf16e0
 ## `dnsmasq`
 
 ## `dig`
+用`strace`追踪可知，`dig`命令是通过读配置文件`/etc/resolv.conf`，然后向其中列出的DNS服务器发出DNS请求。
+
+```bash
+# strace dig baidu.com 2>&1 | grep "/etc/resolv.conf"
+open("/etc/resolv.conf", O_RDONLY)      = 10
+```
+
+## 跟踪与网络抓包
+在日常开发和学习中，遇到问题或对某个东西感到疑惑的时候，对程序进行跟踪和对网络进行抓包，是非常有效的分析方式。
+
+用`strace`来跟踪系统函数调用，细节请参考`man strace`。
+
+用`ltrace`来跟踪库函数调用，细节参考`man ltrace`。
+
+用`wireshark`(GUI)、`tshark`、`tcpdump`来进行网络抓包，细节参考各自的`man`说明页。
+
+其它更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。
+
 
 
