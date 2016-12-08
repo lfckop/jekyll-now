@@ -178,5 +178,4 @@ at com.letv.saas.ms.controller.InviteCodeController.inviteCodeApply(InviteCodeCo
 
 文章如有错误或描述不当之处，请务必指出，非常感谢。
 
-**转载**请务必注明文章出处，否则，*Just Leave Me Alone!* 
-
+**转载**请务必注明文章出处。
