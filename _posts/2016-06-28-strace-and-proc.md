@@ -18,7 +18,7 @@ open("/proc/meminfo", O_RDONLY)         = 4
 
 `ps`和`top`命令会读`/proc/sys/kernel/pid_max`和`/proc/$pid/{stat, status, cmdline}`等文件。
 
-还有很多其它的命令在此不再赘述，感兴趣的用`strace`跟踪一下命令的执行即可。
+还有很多其它的命令在此不再赘述，感兴趣的话用`strace`跟踪一下命令的执行即可。
 
 
 
