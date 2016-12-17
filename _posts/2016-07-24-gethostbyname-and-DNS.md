@@ -143,7 +143,7 @@ nameserver 8.8.8.8
 nameserver 8.8.4.4
 ```
 
-网络上使用广泛的DNS服务器通常是`bind`，简介如下：
+网络上广泛使用的DNS服务器通常是`bind`，简介如下：
 
 
 > BIND (Berkeley Internet Name Domain) is an implementation of the DNS (Domain Name System) protocols. BIND includes a DNS server (named), which resolves host names to IP addresses; a resolver library (routines for applications to use when interfacing with DNS); and tools for verifying that the DNS server is operating properly.
