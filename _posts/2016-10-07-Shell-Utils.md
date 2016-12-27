@@ -35,7 +35,7 @@ alias sost="netstat -n | awk '/^tcp/ {s[\$NF]++} END{for(i in s) print i, s[i]}'
 ```
 这些`alias`都定义在`.source.sh`文件中，一般比较直观，意图是提供简化的命令行操作，部分alias介绍如下。
 
-* `pg`: 查找某个进程：`$ pg java`，可根据进程PID或进程名进行查找。命令名字简短，使用非常频繁。
+* `pg`: 查找某个进程：`$ pg java`，可根据进程PID或进程名进行查找。该命令名字简短，使用非常频繁。
 * `ng`: 检查端口使用情况：`$ ng 8080`，可根据端口号、进程PID或进程名进行查找。
 * `extip`: 获取本机外网ip：`$ extip`.
 * `mcp`: Java项目maven打包：`$ mcp`.
@@ -76,7 +76,7 @@ Usage: cl "99.1*(88.6+77.7)"
 ```
 
 ### `ff`
-对`find`和`grep`命令的封装，用于在当前目录的文件中查找某个字符串。命令名字简短，使用非常频繁。
+对`find`和`grep`命令的封装，用于在当前目录的文件中查找某个字符串。该命令名字简短，使用非常频繁。
 ```bash
 $ ff
 Usage: ff key [filename...]
