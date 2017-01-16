@@ -168,7 +168,7 @@ open("/etc/resolv.conf", O_RDONLY)      = 10
 
 用`wireshark`(GUI)、`tshark`、`tcpdump`来进行网络抓包，细节参考各自的`man`说明页。
 
-更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和[DTrace](https://en.wikipedia.org/wiki/DTrace)，我还没尝试过。还可以阅读大神章亦春(春哥)写的文章[动态追踪技术漫谈](https://openresty.org/posts/dynamic-tracing/)。
+更加强大和复杂的动态追踪技术，请参考[SystemTap](https://en.wikipedia.org/wiki/SystemTap)和DTrace([DTrace for Linux 2016](http://www.brendangregg.com/blog/2016-10-27/dtrace-for-linux-2016.html), [wikipedia](https://en.wikipedia.org/wiki/DTrace))，我还没尝试过。还可以阅读大神章亦春(春哥)写的文章[动态追踪技术漫谈](https://openresty.org/posts/dynamic-tracing/)。
 
 
 
