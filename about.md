@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-周伟，Java服务端开发，现工作于[乐视云](http://www.lecloud.com/zh-cn/)。
+周伟，Java服务端开发，现工作于[美团](http://www.meituan.com)。
 
 [GitHub](https://github.com/lfckop/)
 
