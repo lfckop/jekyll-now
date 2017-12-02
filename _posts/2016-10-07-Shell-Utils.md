@@ -75,6 +75,17 @@ Usage: cl "99.1*(88.6+77.7)"
    or: cl 99.9/m (equals: 'cl 99.9/1024/1024')
 ```
 
+### `escape`
+转义字符串中的双引号，即将`"`替换成`\"`。从标准输入stdin中读取字符，并写到标准输出stdout中。
+
+```bash
+$ escape 
+{ "code":0, "msg":"success" }
+{ \"code\":0, \"msg\":\"success\" }
+
+
+```
+
 ### `ff`
 对`find`和`grep`命令的封装，用于在当前目录的文件中查找某个字符串。该命令名字简短，使用非常频繁。
 
@@ -122,6 +133,13 @@ Usage: jarfind file_name jar_path
 
 $ jargrep
 Usage: jargrep text <path or filename>
+```
+### `path`
+获取一个文件的绝对路径，该命令通常用于Mac下，功能类似于Liunux命令`readlink -f filename`。
+
+```bash
+$ path
+Usage: path filename
 ```
 
 ### `tarc, tart, tarx`
