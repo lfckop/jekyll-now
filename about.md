@@ -6,7 +6,7 @@ permalink: /about/
 
 周伟，Java服务端开发，现工作于[美团](http://www.meituan.com)。
 
-博客文章同步发表在**[简书](http://www.jianshu.com/u/587f958d5ba0)**.
+博客文章同步发表在**[简书](http://www.jianshu.com/u/587f958d5ba0)**。
 
 [GitHub](https://github.com/lfckop/)
 
